@@ -51,7 +51,7 @@
 const startDisplay = document.querySelector('#startDisplay')
 const modelDisplay = document.querySelector('#modelDisplay')
 
-let key = 'f1b342a08d092ff9e9f473544ce842b2' //put this in a config later...
+let key = ''
 
 let api = async ()=>{
    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=London&appid=${key}`)
