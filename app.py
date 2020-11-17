@@ -4,8 +4,8 @@ import pandas as pd
 import sklearn
 import pickle
 
-path = '/Users/ulisman/Library/Mobile Documents/com~apple~CloudDocs/python copy/Data-science/AI/machine-learning/ml-projects/weather-prediction/weather_model.pkl'
-model = pickle.load(open(path, 'rb'))
+path = 'Data-science/AI/machine-learning/ml-projects/weather-prediction/weather_model_2.pkl'
+model_2 = pickle.load(open(path, 'rb'))
 targets = {
     0: 'Sky is clear',
     1: 'Light rain',
@@ -23,7 +23,7 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
-@app.route('/test', methods=['POST'])
+@app.route('/prediction', methods=['POST'])
 def test():
     @after_this_request
     def add_header(response):
@@ -37,21 +37,16 @@ def test():
     deg = data[3]
     speed = data[4]
 
-    date_t = pd.Timestamp(data[5], unit='s')
+    date_t = pd.Timestamp(data[5], unit='s', tz='Etc/GMT+8')
     date_t = pd.DatetimeIndex([date_t])
     month = date_t.month[0]
     week = date_t.week[0]
     day = date_t.day[0]
     hour = date_t.hour[0]
 
-    pred = model.predict([[humidity, pressure, temp, deg, speed, month, week, day, hour]])
+    pred_2 = model_2.predict([[humidity, pressure, temp, deg, speed, month, week, day, hour]])
 
-    print(pred)
-    print(targets[pred[0]])
-
-    return jsonify({'pred': targets[pred[0]]})
-
-
+    return jsonify({'pred': targets[pred_2[0]]})
 
 
 
