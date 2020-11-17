@@ -34,6 +34,15 @@
 <body>
     
     <h1 class="title">Seattle weather prediction</h1>
+
+    <h2>Select date:</h2>
+    <select id="selectBox" onChange="selectDate()">
+        <option disabled selected>Today:</option>
+        <option value="8">Tomorrow</option>
+        <option value="16">In 2 days</option>
+        <option value="24">In 3 days</option>
+        <option value="32">In 4 days</option>
+    </select>
     
     <div id="startDisplay">
         
@@ -50,8 +59,9 @@
 <script>
 const startDisplay = document.querySelector('#startDisplay')
 const modelDisplay = document.querySelector('#modelDisplay')
+const selectBox = document.querySelector("#selectBox");
 
-let key = ''
+let key = 'f1b342a08d092ff9e9f473544ce842b2' //put this in a config later...
 
 let api = async ()=>{
    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=London&appid=${key}`)
@@ -69,10 +79,12 @@ async function displayDefault(data){
     let {speed, deg} = data.wind
     let temp_cel = Math.round((temp - 273.15) * 100)/100
     let description = data.weather[0].description
-    let datetime = data.dt
+    let unixDatetime = data.dt
+    let date = new Date(unixDatetime * 1000).toLocaleString("en-US", {timeZone: "Etc/GMT+8"})
+    console.log("UNIX ", unixDatetime)
 
     startDisplay.innerHTML = `
-        <h3>Chosen data:</h3>
+        <h3>Data from chosen date:</h3>
         <table>
             <tr class="tr1">
                 <th>Humidity:</th>    
@@ -80,6 +92,7 @@ async function displayDefault(data){
                 <th>Temperature:</th> 
                 <th>Wind direction:</th> 
                 <th>Wind speed:</th> 
+                <th>Date (Seattle):</th> 
             </tr>
             <tr>
                 <td>${humidity}</td>
@@ -87,12 +100,13 @@ async function displayDefault(data){
                 <td>${temp_cel}</td>
                 <td>${deg}</td>
                 <td>${speed}</td>
+                <td>${date}</td>
             </tr>
         </table>
 
         <p>Weather description from API: <b>${description}</b></p>
 
-        <button onclick='request(${humidity}, ${pressure}, ${temp_cel}, ${deg}, ${speed}, ${datetime})'>Test model</button>
+        <button onclick='request(${humidity}, ${pressure}, ${temp_cel}, ${deg}, ${speed}, ${unixDatetime})'>Test model on this data</button>
     `
 }
 
@@ -106,7 +120,7 @@ async function request(humidity, pressure, temp, deg, speed, dt){
       body: JSON.stringify([humidity, pressure, temp, deg, speed, dt]),
     }
 
-    const url = 'http://127.0.0.1:5000/test'
+    const url = 'http://127.0.0.1:5000/prediction'
     const response = await fetch(url, options)
     const data = await response.json()
     console.log(data)
@@ -116,4 +130,15 @@ async function request(humidity, pressure, temp, deg, speed, dt){
     `
 }
 
+async function selectDate(){
+    let selectedValue = selectBox.options[selectBox.selectedIndex].value
+    const response = await fetch('https://api.openweathermap.org/data/2.5/forecast?q=Seattle&appid=f1b342a08d092ff9e9f473544ce842b2')
+    const data = await response.json()
+    console.log(data)
+    console.log(data.list[0].dt)
+
+    displayDefault(data.list[selectedValue])
+}
+
 </script>
+
